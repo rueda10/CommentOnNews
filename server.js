@@ -31,7 +31,11 @@ app.engine('handlebars', exphbs({ defaultLayout: "main" }));
 app.set('view engine', 'handlebars');
 
 // Database configuration with mongoose
-mongoose.connect("mongodb://localhost/commentonnews");
+if (process.env.MONGODB_URI) {
+    mongoose.connect(process.env.MONGODB_URI);
+} else {
+    mongoose.connect("mongodb://localhost/commentonnews");
+}
 var db = mongoose.connection;
 
 // Show any mongoose errors
