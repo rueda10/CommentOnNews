@@ -1,0 +1,25 @@
+<nav class="navbar navbar-default">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="/articles">Comment On News</a>
+        </div>
+        <ul class="nav navbar-nav navbar-right">
+            <li>
+                <form action="/favorite-articles" method="get">
+                    <input type="hidden" name="type" />
+                    <div class="col-xs-12 text-center">
+                        <button type="submit" class="btn btn-link navbar-btn">Favorite Articles</button>
+                    </div>
+                </form>
+            </li>
+            <li>
+                <form action="/scrape" method="get">
+                    <input type="hidden" name="type" />
+                    <div class="col-xs-12 text-center">
+                        <button type="submit" class="btn btn-danger navbar-btn">Scrape New Articles</button>
+                    </div>
+                </form>
+            </li>
+        </ul>
+    </div>
+</nav>
