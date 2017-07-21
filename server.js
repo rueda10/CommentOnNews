@@ -4,6 +4,7 @@ var bodyParser = require("body-parser");
 var logger = require("morgan");
 var mongoose = require("mongoose");
 var exphbs = require("express-handlebars");
+var methodOverride = require('method-override');
 // Requiring our Note and Article models
 var Note = require("./models/Note.js");
 var Article = require("./models/Article.js");
@@ -18,6 +19,7 @@ var port = process.env.PORT || 3000;
 // Initialize Express
 var app = express();
 
+app.use(methodOverride('_method'));
 app.use(express.static(__dirname + "/public"));
 
 // Use morgan and body parser with our app
@@ -81,11 +83,10 @@ app.get("/scrape", function(req, res) {
         // Log any errors
         if (err) {
           console.log(err);
+          res.redirect('/articles');
         }
         // Or log the doc
         else {
-            console.log("COUNTER", i);
-            console.log("LENGTH", contentsLength);
             if (i === contentsLength-1) {
                 res.redirect('/articles');
             }
@@ -102,10 +103,10 @@ app.get("/articles", function(req, res) {
     // Log any errors
     if (error) {
       console.log(error);
+      res.render('index', { doc: [] });
     }
     // Or send the doc to the browser as a json object
     else {
-        console.log(doc);
         res.render('index', { doc: doc });
     }
   });
@@ -122,6 +123,7 @@ app.post("/favorite-articles/:id", function(req, res) {
     Article.update({_id: req.params.id}, doc, function(error, raw) {
         if (error) {
             console.log(error);
+            res.redirect('/articles');
         } else {
             if (req.body.type === 'unfavorite') {
                 res.redirect('/favorite-articles');
@@ -137,32 +139,27 @@ app.get("/favorite-articles", function(req, res) {
     Article.find({saved: true}, function(error, doc) {
         if (error) {
             console.log(error);
+            res.redirect('/articles');
         }
         // Or send the doc to the browser as a json object
         else {
-            console.log(doc);
             res.render('favorites', { doc: doc });
         }
     });
 });
 
+// this route renders the notes page for the article in the params
 app.get("/notes/:id", function(req, res) {
-    Article.find({_id: req.params.id}, function(error, doc) {
+    Note.find({article: req.params.id}, function(error, doc) {
         if (error) {
 
         } else {
-            console.log("NOTE", doc);
-            Note.find({article: req.params.id}, function(error, doc) {
-                if (error) {
-
-                } else {
-                    res.render('notes', { id: req.params.id, notes: doc });
-                }
-            });
+            res.render('notes', { articleid: req.params.id, notes: doc });
         }
-     });
+    });
 });
 
+// This route saves the note into the db
 app.post("/notes/:id", function(req, res) {
     const content = {
         title: req.body.title,
@@ -177,6 +174,17 @@ app.post("/notes/:id", function(req, res) {
 
         } else {
             res.redirect('/notes/' + req.params.id);
+        }
+    });
+});
+
+app.post("/note/:id", function(req, res) {
+    Note.remove({ _id: req.params.id }, function(error, doc) {
+        if (error) {
+            console.log(error);
+            res.redirect('/articles');
+        } else {
+            res.redirect('/favorite-articles');
         }
     });
 });
